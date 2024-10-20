@@ -48,16 +48,20 @@ def text_to_speech_gTTS(text, output_audio_file, lang='en'):
     output_audio_file = output_audio_file.replace(".wav", ".mp3")  # Save as mp3
     tts.save(output_audio_file)
     os.system(f"mpg321 {output_audio_file}")
-
 def merge_audio_with_video(video_path, audio_path, output_video_path):
     video = VideoFileClip(video_path)
     audio = AudioFileClip(audio_path)
-    if audio.duration == 0:
-        st.error("The audio file is empty.")
-        return
-    audio = audio.subclip(0, video.duration)
+    
+    # Adjust the audio duration to match the video duration
+    if audio.duration > video.duration:
+        audio = audio.subclip(0, video.duration)
+    else:
+        # If the audio is shorter, add silence to match the video duration
+        audio = audio.set_duration(video.duration)
+    
     final_video = video.set_audio(audio)
-    final_video.write_videofile(output_video_path, codec="libx264", audio_codec="aac")
+    final_video.write_videofile(output_video_path)
+
 
 st.title("Audio Converter")
 
