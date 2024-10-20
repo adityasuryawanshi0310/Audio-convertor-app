@@ -1,0 +1,7 @@
+import os
+import streamlit as st
+import moviepy.editor as me
+import speech_recognition as sr
+from googletrans import Translator
+import pyttsx3
+from moviepy.editor import AudioFileClip, VideoFileClip
