@@ -2,9 +2,9 @@ import os
 import streamlit as st
 import moviepy.editor as me
 import speech_recognition as sr
-import pyttsx3
-from moviepy.editor import AudioFileClip, VideoFileClip
 from googletrans import Translator
+from gtts import gTTS
+from moviepy.editor import AudioFileClip, VideoFileClip
 
 def extract_audio_from_video(video_path, audio_output_path):
     video = me.VideoFileClip(video_path)
@@ -19,10 +19,10 @@ def transcribe_audio(audio_path):
         punctuated_text = add_punctuation(text)
         return punctuated_text
     except sr.UnknownValueError:
-        print("Could not understand the audio")
+        st.error("Could not understand the audio.")
         return ""
     except sr.RequestError as e:
-        print(f"Could not request results from Google Speech Recognition service; {e}")
+        st.error(f"Could not request results from Google Speech Recognition service; {e}")
         return ""
 
 def add_punctuation(text):
@@ -43,53 +43,57 @@ def translate_text(text, target_language="en"):
     translated = translator.translate(text, dest=target_language)
     return translated.text
 
-def text_to_speech_pyttsx3(text, output_audio_file, voice_index=0, rate=150):
-    engine = pyttsx3.init()
-    
-    # Set voice: 0 for male, 1 for female
-    voices = engine.getProperty('voices')
-    engine.setProperty('voice', voices[voice_index].id)
-    
-    # Set rate of speech
-    engine.setProperty('rate', rate)
-    
-    # Save speech to a file
-    engine.save_to_file(text, output_audio_file)
-    engine.runAndWait()
+def text_to_speech_gTTS(text, output_audio_file, lang='en'):
+    tts = gTTS(text=text, lang=lang)
+    output_audio_file = output_audio_file.replace(".wav", ".mp3")  # Save as mp3
+    tts.save(output_audio_file)
+    os.system(f"mpg321 {output_audio_file}")
 
 def merge_audio_with_video(video_path, audio_path, output_video_path):
     video = VideoFileClip(video_path)
     audio = AudioFileClip(audio_path)
+    if audio.duration == 0:
+        st.error("The audio file is empty.")
+        return
     audio = audio.subclip(0, video.duration)
     final_video = video.set_audio(audio)
-    final_video.write_videofile(output_video_path)
+    final_video.write_videofile(output_video_path, codec="libx264", audio_codec="aac")
 
 st.title("Audio Converter")
 
 st.write("Upload your video and specify voice index (0 for male, 1 for female).")
 
 video_file = st.file_uploader("Choose a video file", type=["mp4", "mov", "avi"])
-voice_index = st.selectbox("Select Voice Index", [0, 1])
-rate = st.slider("Select Speech Rate", 50, 300, 150)
+voice_index = st.selectbox("Select Voice Index", ["Male", "Female"])
+rate = st.slider("Select Speech Rate", 50, 300, 115)  # Default rate is 115
 
 if st.button("Process Video"):
     if video_file is not None:
         video_path = "uploaded_video.mp4"
         audio_output_path = "extracted_audio.wav"
-        translated_audio_output_path = "translated_audio.wav"
+        translated_audio_output_path = "translated_audio.mp3"  # Use mp3 format
         final_video_path = "final_video.mp4"
         with open(video_path, "wb") as f:
             f.write(video_file.getbuffer())
+        
+        # Extract audio from video
         extract_audio_from_video(video_path, audio_output_path)
+        
+        # Transcribe audio to text
         transcription = transcribe_audio(audio_output_path)
+        
         if transcription:
+            # Translate transcription to English
             translated_text = translate_text(transcription, target_language="en")
-            text_to_speech_pyttsx3(translated_text, translated_audio_output_path, voice_index=voice_index, rate=rate)
+            # Generate speech from translated text
+            text_to_speech_gTTS(translated_text, translated_audio_output_path, lang='en')
+            # Merge audio with video
             merge_audio_with_video(video_path, translated_audio_output_path, final_video_path)
             st.success("Processing complete! You can download the final video below.")
             with open(final_video_path, "rb") as final_video_file:
                 st.download_button("Download Final Video", final_video_file, file_name=final_video_path)
             st.video(final_video_path)
+            
             if st.button("Cleanup Temporary Files"):
                 try:
                     os.remove(video_path)
