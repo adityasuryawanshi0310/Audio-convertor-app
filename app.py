@@ -4,6 +4,9 @@ import moviepy.editor as me
 import speech_recognition as sr
 from googletrans import Translator
 import pyttsx3
+print(pyttsx3.__version__)  
+from gtts import gTTS
+
 from moviepy.editor import AudioFileClip, VideoFileClip
 
 def extract_audio_from_video(video_path, audio_output_path):
@@ -43,13 +46,11 @@ def translate_text(text, target_language="en"):
     translated = translator.translate(text, dest=target_language)
     return translated.text
 
-def text_to_speech(text, output_audio_file, voice_index=0, rate=150):
-    engine = pyttsx3.init()
-    voices = engine.getProperty('voices')
-    engine.setProperty('voice', voices[voice_index].id)
-    engine.setProperty('rate', rate)
-    engine.save_to_file(text, output_audio_file)
-    engine.runAndWait()
+def text_to_speech_gTTS(text, output_audio_file, lang='en'):
+    tts = gTTS(text=text, lang=lang)
+    tts.save(output_audio_file)
+    os.system(f"mpg321 {output_audio_file}")
+
 
 def merge_audio_with_video(video_path, audio_path, output_video_path):
     video = VideoFileClip(video_path)
@@ -78,7 +79,7 @@ if st.button("Process Video"):
         transcription = transcribe_audio(audio_output_path)
         if transcription:
             translated_text = translate_text(transcription, target_language="en")
-            text_to_speech(translated_text, translated_audio_output_path, voice_index=voice_index, rate=rate)
+            text_to_speech_gTTS(translated_text, translated_audio_output_path, voice_index=voice_index, rate=rate)
             merge_audio_with_video(video_path, translated_audio_output_path, final_video_path)
             st.success("Processing complete! You can download the final video below.")
             with open(final_video_path, "rb") as final_video_file:
