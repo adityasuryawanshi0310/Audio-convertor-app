@@ -1,5 +1,5 @@
-streamlit
-moviepy
-SpeechRecognition
+streamlit==1.32.0
+moviepy==1.0.3
+SpeechRecognition==3.10.4
 googletrans==4.0.0-rc1
-pyttsx3
+pyttsx3==2.98
