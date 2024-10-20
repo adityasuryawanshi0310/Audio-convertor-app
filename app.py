@@ -6,12 +6,10 @@ from googletrans import Translator
 from gtts import gTTS
 from moviepy.editor import AudioFileClip, VideoFileClip
 
-# Extract audio from video
 def extract_audio_from_video(video_path, audio_output_path):
     video = me.VideoFileClip(video_path)
     video.audio.write_audiofile(audio_output_path)
 
-# Transcribe audio to text
 def transcribe_audio(audio_path):
     recognizer = sr.Recognizer()
     with sr.AudioFile(audio_path) as source:
@@ -24,10 +22,9 @@ def transcribe_audio(audio_path):
         st.error("Could not understand the audio.")
         return ""
     except sr.RequestError as e:
-        st.error(f"Google Speech Recognition service error: {e}")
+        st.error(f"Could not request results from Google Speech Recognition service; {e}")
         return ""
 
-# Add punctuation to the transcribed text
 def add_punctuation(text):
     punctuated_text = text.replace(" and", ", and").replace(" but", ", but")
     punctuated_text = punctuated_text.replace(" so", ", so").replace(" because", ", because")
@@ -41,73 +38,62 @@ def add_punctuation(text):
         punctuated_text += "."
     return punctuated_text
 
-# Translate text
 def translate_text(text, target_language="en"):
     translator = Translator()
-    try:
-        translated = translator.translate(text, dest=target_language)
-        return translated.text
-    except Exception as e:
-        st.error(f"Translation service error: {e}")
-        return text
+    translated = translator.translate(text, dest=target_language)
+    return translated.text
 
-# Convert text to speech using gTTS
 def text_to_speech_gTTS(text, output_audio_file, lang='en'):
     tts = gTTS(text=text, lang=lang)
+    output_audio_file = output_audio_file.replace(".wav", ".mp3")  # Save as mp3
     tts.save(output_audio_file)
     os.system(f"mpg321 {output_audio_file}")
 
-# Merge translated audio with video
 def merge_audio_with_video(video_path, audio_path, output_video_path):
     video = VideoFileClip(video_path)
     audio = AudioFileClip(audio_path)
-    audio = audio.subclip(0, video.duration)  # Match audio duration with video
+    if audio.duration == 0:
+        st.error("The audio file is empty.")
+        return
+    audio = audio.subclip(0, video.duration)
     final_video = video.set_audio(audio)
-    final_video.write_videofile(output_video_path)
+    final_video.write_videofile(output_video_path, codec="libx264", audio_codec="aac")
 
-# Streamlit UI
 st.title("Audio Converter")
-st.write("Upload a video file, and the app will transcribe, translate, and replace the audio.")
+
+st.write("Upload your video and specify voice index (0 for male, 1 for female).")
 
 video_file = st.file_uploader("Choose a video file", type=["mp4", "mov", "avi"])
+voice_index = st.selectbox("Select Voice Index", ["Male", "Female"])
+rate = st.slider("Select Speech Rate", 50, 300, 115)  # Default rate is 115
 
 if st.button("Process Video"):
     if video_file is not None:
-        # Define file paths
-        video_path = os.path.join("temp", "uploaded_video.mp4")
-        audio_output_path = os.path.join("temp", "extracted_audio.wav")
-        translated_audio_output_path = os.path.join("temp", "translated_audio.wav")
-        final_video_path = os.path.join("temp", "final_video.mp4")
-
-        # Create 'temp' directory if not exists
-        os.makedirs("temp", exist_ok=True)
-
-        # Save the uploaded video
+        video_path = "uploaded_video.mp4"
+        audio_output_path = "extracted_audio.wav"
+        translated_audio_output_path = "translated_audio.mp3"  # Use mp3 format
+        final_video_path = "final_video.mp4"
         with open(video_path, "wb") as f:
             f.write(video_file.getbuffer())
-
+        
         # Extract audio from video
         extract_audio_from_video(video_path, audio_output_path)
-
-        # Transcribe audio
+        
+        # Transcribe audio to text
         transcription = transcribe_audio(audio_output_path)
+        
         if transcription:
-            # Translate the text (add language options if needed)
+            # Translate transcription to English
             translated_text = translate_text(transcription, target_language="en")
-            
-            # Convert text to speech (gTTS)
-            text_to_speech_gTTS(translated_text, translated_audio_output_path)
-            
-            # Merge new audio with video
+            # Generate speech from translated text
+            text_to_speech_gTTS(translated_text, translated_audio_output_path, lang='en')
+            # Merge audio with video
             merge_audio_with_video(video_path, translated_audio_output_path, final_video_path)
-            
-            # Provide download link and video preview
             st.success("Processing complete! You can download the final video below.")
             with open(final_video_path, "rb") as final_video_file:
-                st.download_button("Download Final Video", final_video_file, file_name="final_video.mp4")
+                st.download_button("Download Final Video", final_video_file, file_name=final_video_path)
             st.video(final_video_path)
-
-            # Cleanup temporary files
+            
             if st.button("Cleanup Temporary Files"):
                 try:
                     os.remove(video_path)
@@ -115,8 +101,8 @@ if st.button("Process Video"):
                     os.remove(translated_audio_output_path)
                     os.remove(final_video_path)
                     st.success("Temporary files have been deleted.")
-                except Exception as e:
-                    st.error(f"Could not delete temporary files: {e}")
+                except PermissionError:
+                    st.error("Could not delete temporary files. They may still be in use.")
         else:
             st.error("Transcription failed.")
     else:
