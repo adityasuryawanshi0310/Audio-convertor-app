@@ -4,6 +4,7 @@ import moviepy.editor as me
 import speech_recognition as sr
 import pyttsx3
 from moviepy.editor import AudioFileClip, VideoFileClip
+from googletrans import Translator
 
 def extract_audio_from_video(video_path, audio_output_path):
     video = me.VideoFileClip(video_path)
