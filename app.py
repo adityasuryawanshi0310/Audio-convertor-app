@@ -4,7 +4,6 @@ import moviepy.editor as me
 import speech_recognition as sr
 from googletrans import Translator
 import pyttsx3
-print(pyttsx3.__version__)  
 from gtts import gTTS
 
 from moviepy.editor import AudioFileClip, VideoFileClip
