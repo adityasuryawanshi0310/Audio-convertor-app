@@ -4,6 +4,7 @@ import moviepy.editor as me
 import speech_recognition as sr
 import pyttsx3
 from moviepy.editor import AudioFileClip, VideoFileClip
+from googletrans import Translator, LANGUAGES
 
 def extract_audio_from_video(video_path, audio_output_path):
     video = me.VideoFileClip(video_path)
@@ -37,10 +38,17 @@ def add_punctuation(text):
         punctuated_text += "."
     return punctuated_text
 
+
+
 def translate_text(text, target_language="en"):
     translator = Translator()
-    translated = translator.translate(text, dest=target_language)
-    return translated.text
+    try:
+        translated = translator.translate(text, dest=target_language)
+        return translated.text
+    except Exception as e:
+        print(f"Translation failed: {e}")
+        return text 
+
 
 def text_to_speech_pyttsx3(text, output_audio_file, voice_index=0, rate=150):
     engine = pyttsx3.init()
