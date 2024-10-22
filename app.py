@@ -14,47 +14,47 @@ st.markdown("""
 </style>            
 """,unsafe_allow_html=True)
 def extract_audio_from_video(video_path, audio_output_path):
-video = me.VideoFileClip(video_path)
-video.audio.write_audiofile(audio_output_path)
+    video = me.VideoFileClip(video_path)
+    video.audio.write_audiofile(audio_output_path)
 
 def transcribe_audio(audio_path):
-recognizer = sr.Recognizer()
-with sr.AudioFile(audio_path) as source:
-audio = recognizer.record(source)
-try:
-text = recognizer.recognize_google(audio)
-punctuated_text = add_punctuation(text)
-return punctuated_text
-except sr.UnknownValueError:
-st.error("Could not understand the audio.")
-return ""
-except sr.RequestError as e:
-st.error(f"Could not request results from Google Speech Recognition service; {e}")
-return ""
+    recognizer = sr.Recognizer()
+    with sr.AudioFile(audio_path) as source:
+        audio = recognizer.record(source)
+    try:
+        text = recognizer.recognize_google(audio)
+        punctuated_text = add_punctuation(text)
+        return punctuated_text
+    except sr.UnknownValueError:
+        st.error("Could not understand the audio.")
+        return ""
+    except sr.RequestError as e:
+        st.error(f"Could not request results from Google Speech Recognition service; {e}")
+        return ""
 
 def add_punctuation(text):
-punctuated_text = text.replace(" and", ", and").replace(" but", ", but")
-punctuated_text = punctuated_text.replace(" so", ", so").replace(" because", ", because")
-punctuated_text = punctuated_text.replace(" although", ", although").replace(" while", ", while")
-punctuated_text = punctuated_text.replace(" or", ", or").replace(" yet", ", yet")
-punctuated_text = punctuated_text.replace(" nevertheless", ", nevertheless").replace(" moreover", ", moreover")
-punctuated_text = punctuated_text.replace(" then", ". Then").replace(" therefore", ". Therefore")
-punctuated_text = punctuated_text.replace(" however", ". However").replace(" thus", ". Thus")
-punctuated_text = punctuated_text.replace(" otherwise", ". Otherwise").replace(" furthermore", ". Furthermore")
-if not punctuated_text.endswith("."):
-punctuated_text += "."
-return punctuated_text
+    punctuated_text = text.replace(" and", ", and").replace(" but", ", but")
+    punctuated_text = punctuated_text.replace(" so", ", so").replace(" because", ", because")
+    punctuated_text = punctuated_text.replace(" although", ", although").replace(" while", ", while")
+    punctuated_text = punctuated_text.replace(" or", ", or").replace(" yet", ", yet")
+    punctuated_text = punctuated_text.replace(" nevertheless", ", nevertheless").replace(" moreover", ", moreover")
+    punctuated_text = punctuated_text.replace(" then", ". Then").replace(" therefore", ". Therefore")
+    punctuated_text = punctuated_text.replace(" however", ". However").replace(" thus", ". Thus")
+    punctuated_text = punctuated_text.replace(" otherwise", ". Otherwise").replace(" furthermore", ". Furthermore")
+    if not punctuated_text.endswith("."):
+        punctuated_text += "."
+    return punctuated_text
 
 def translate_text(text, target_language="en"):
-translator = Translator()
-translated = translator.translate(text, dest=target_language)
-return translated.text
+    translator = Translator()
+    translated = translator.translate(text, dest=target_language)
+    return translated.text
 
 def text_to_speech_gTTS(text, output_audio_file, lang='en'):
-tts = gTTS(text=text, lang=lang)
-output_audio_file = output_audio_file.replace(".wav", ".mp3")  # Save as mp3
-tts.save(output_audio_file)
-os.system(f"mpg321 {output_audio_file}")
+    tts = gTTS(text=text, lang=lang)
+    output_audio_file = output_audio_file.replace(".wav", ".mp3")  # Save as mp3
+    tts.save(output_audio_file)
+    os.system(f"mpg321 {output_audio_file}")
 def merge_audio_with_video(video_path, audio_path, output_video_path):
     video = VideoFileClip(video_path)
     audio = AudioFileClip(audio_path)
