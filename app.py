@@ -92,3 +92,41 @@ def merge_audio_with_video(video_path, audio_path, output_video_path):
 
 
 st.title("Audio Converter") 
+st.write("Upload your video and specify voice index (0 for male, 1 for female).")
+
+video_file = st.file_uploader("Choose a video file", type=["mp4", "mov", "avi"])
+voice_index = st.selectbox("Select Voice Index", [0, 1])
+rate = st.slider("Select Speech Rate", 50, 300, 150)
+
+if st.button("Process Video"):
+    if video_file is not None:
+        video_path = "uploaded_video.mp4"
+        audio_output_path = "extracted_audio.wav"
+        translated_audio_output_path = "translated_audio.wav"
+        final_video_path = "final_video.mp4"
+        with open(video_path, "wb") as f:
+            f.write(video_file.getbuffer())
+        extract_audio_from_video(video_path, audio_output_path)
+        transcription = transcribe_audio(audio_output_path)
+        if transcription:
+            translated_text = translate_text(transcription, target_language="en")
+            text_to_speech_gTTS(translated_text, translated_audio_output_path, voice_index=voice_index, rate=rate)
+            merge_audio_with_video(video_path, translated_audio_output_path, final_video_path)
+            st.success("Processing complete! You can download the final video below.")
+            with open(final_video_path, "rb") as final_video_file:
+                st.download_button("Download Final Video", final_video_file, file_name=final_video_path)
+            st.video(final_video_path)
+            if st.button("Cleanup Temporary Files"):
+                try:
+                    os.remove(video_path)
+                    os.remove(audio_output_path)
+                    os.remove(translated_audio_output_path)
+                    os.remove(final_video_path)
+                    st.success("Temporary files have been deleted.")
+                except PermissionError:
+                    st.error("Could not delete temporary files. They may still be in use.")
+        else:
+            st.error("Transcription failed.")
+    else:
+        st.error("Please upload a video file.")
+
