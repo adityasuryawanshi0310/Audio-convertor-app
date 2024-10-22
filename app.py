@@ -74,12 +74,11 @@ def merge_audio_with_video(video_path, audio_path, output_video_path):
 
 st.title("Audio Converter")
 
-# Hide the "View GitHub" and "View Profile" options
+# Only hide the "View GitHub" and "View Profile" options
 hide_menu_style = """
-        <style>
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        header {visibility: hidden;}
-        </style>
-        """
+    <style>
+    /* Hide "View GitHub" and "View Profile" options */
+    #MainMenu, footer {visibility: hidden;}
+    </style>
+    """
 st.markdown(hide_menu_style, unsafe_allow_html=True)
