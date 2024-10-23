@@ -5,18 +5,14 @@ import speech_recognition as sr
 from googletrans import Translator
 from gtts import gTTS
 from moviepy.editor import AudioFileClip, VideoFileClip
-st.markdown("""
- <style>
-.st-emotion-cache-1wpawk1.e3g6aar1
-    {
-        visibility : hidden;
-    }
- ._profileImage_1yi6l_74
-  {
-        visibility : hidden;
-   }
- </style>           
-""",unsafe_allow_html=True)
+hide_menu_style = """
+        <style>
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
+        </style>
+        """
+st.markdown(hide_menu_style, unsafe_allow_html=True)
 def extract_audio_from_video(video_path, audio_output_path):
     video = me.VideoFileClip(video_path)
     video.audio.write_audiofile(audio_output_path)
@@ -141,3 +137,4 @@ if st.button("Process Video"):
             st.error("Transcription failed.")
     else:
         st.error("Please upload a video file.")
+     
