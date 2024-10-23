@@ -5,7 +5,14 @@ import speech_recognition as sr
 from googletrans import Translator
 from gtts import gTTS
 from moviepy.editor import AudioFileClip, VideoFileClip
-
+st.markdown("""
+ <style>
+.eyeqlp51.st-emotion-cache-1pbsqtx.ex0cdmw0
+    {
+        visibility : hidden;
+    }
+ </style>           
+""",unsafe_allow_html=True)
 def extract_audio_from_video(video_path, audio_output_path):
     video = me.VideoFileClip(video_path)
     video.audio.write_audiofile(audio_output_path)
