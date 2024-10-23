@@ -11,7 +11,7 @@ st.markdown("""
     {
         visibility : hidden;
     }
- ._profileImage_1yi6l_74   
+ ._profileContainer_1yi6l_53
   {
         visibility : hidden;
    }
