@@ -11,6 +11,10 @@ st.markdown("""
     {
         visibility : hidden;
     }
+ ._profileImage_1yi6l_74   
+  {
+        visibility : hidden;
+   }
  </style>           
 """,unsafe_allow_html=True)
 def extract_audio_from_video(video_path, audio_output_path):
