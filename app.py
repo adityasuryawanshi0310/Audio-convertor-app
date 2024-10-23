@@ -6,12 +6,22 @@ from googletrans import Translator
 from gtts import gTTS
 from moviepy.editor import AudioFileClip, VideoFileClip
 hide_menu_style = """
-        <style>
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        header {visibility: hidden;}
-        </style>
-        """
+    <style>
+    #MainMenu {visibility: hidden;} /* Hides the hamburger menu */
+    footer {visibility: hidden;}    /* Hides 'Made with Streamlit' */
+    header {visibility: hidden;}    /* Hides the header and profile menu */
+    
+    /* Hide the profile logo */
+    .viewerBadge_container__1QSob { 
+        display: none; 
+    }
+    
+    /* Hide the entire header which contains the Streamlit icon and View Profile */
+    .css-1v0mbdj { 
+        display: none; 
+    }
+    </style>
+"""
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 def extract_audio_from_video(video_path, audio_output_path):
     video = me.VideoFileClip(video_path)
