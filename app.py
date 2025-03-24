@@ -160,5 +160,3 @@ if st.button("Process Video") and uploaded_file:
                     pass
 
 st.markdown("---")
-st.info("Note: This is a simplified demo. For production use, consider:")
-st.info("- Adding progress indicators\n- Implementing chunked processing for large files\n- Using cloud storage for temporary files")
