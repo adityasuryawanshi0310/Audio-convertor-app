@@ -91,7 +91,7 @@ def merge_audio_with_video(video_path, audio_path, output_video_path):
         return False
 
 # Streamlit UI
-st.title("Video Translation System")
+st.title("Audio Convertor App ")
 
 uploaded_file = st.file_uploader("Upload video file", type=["mp4", "mov", "avi"])
 target_lang = st.selectbox("Target Language", ["en", "es", "fr", "de", "hi", "ja"], index=0)
