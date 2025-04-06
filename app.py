@@ -89,16 +89,12 @@ def merge_audio_with_video(video_path, audio_path, output_video_path):
     except Exception as e:
         st.error(f"Video merging failed: {str(e)}")
         return False
-
-# Streamlit UI
 st.title("Audio Convertor App ")
 
 uploaded_file = st.file_uploader("Upload video file", type=["mp4", "mov", "avi"])
 import streamlit as st
 
-# Dictionary of languages with names and their codes
 languages = {
-    "English": "en",
     "Spanish": "es",
     "French": "fr",
     "Hindi": "hi",
@@ -110,27 +106,18 @@ languages = {
     "Chinese": "zh-CN",
     "Arabic": "ar",
     "Russian": "ru",
-    "Portuguese": "pt",
-    "Italian": "it",
-    "Korean": "ko",
-    "Malayalam": "ml",
-    "Punjabi": "pa",
+    "Portuguese": "pt"
 }
-
-# Create a list of display names
 language_display = [f"{name} ({code})" for name, code in languages.items()]
 
-# Show selectbox with language names
 selected_language_display = st.selectbox("Target Language", language_display, index=0)
 
-# Get the language code from the selected display string
 target_lang = languages[selected_language_display.split(" (")[0]]
 
-st.write(f"Selected Language Code: {target_lang}")
+#st.write(f"Selected Language Code: {target_lang}")
 
 
 if st.button("Process Video") and uploaded_file:
-    # File paths
     temp_video = "temp_video.mp4"
     extracted_audio = "extracted_audio.wav"
     translated_audio = "translated_audio.mp3"
@@ -163,7 +150,6 @@ if st.button("Process Video") and uploaded_file:
         if not merge_audio_with_video(temp_video, translated_audio, final_video):
             raise Exception("Video merging failed")
 
-        # Display results
         st.success("Processing complete!")
         
         col1, col2 = st.columns(2)
@@ -175,7 +161,6 @@ if st.button("Process Video") and uploaded_file:
             st.subheader("Translated Text")
             st.write(translated_text)
 
-        # Download and preview
         st.video(final_video)
         with open(final_video, "rb") as f:
             st.download_button("Download Translated Video", f, file_name=final_video)
@@ -184,7 +169,6 @@ if st.button("Process Video") and uploaded_file:
         st.error(f"Processing failed: {str(e)}")
 
     finally:
-        # Cleanup temporary files
         for path in [temp_video, extracted_audio, translated_audio]:
             if os.path.exists(path):
                 try:
