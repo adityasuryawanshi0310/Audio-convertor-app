@@ -94,7 +94,40 @@ def merge_audio_with_video(video_path, audio_path, output_video_path):
 st.title("Audio Convertor App ")
 
 uploaded_file = st.file_uploader("Upload video file", type=["mp4", "mov", "avi"])
-target_lang = st.selectbox("Target Language", ["en", "es", "fr", "de", "hi", "ja"], index=0)
+import streamlit as st
+
+# Dictionary of languages with names and their codes
+languages = {
+    "English": "en",
+    "Spanish": "es",
+    "French": "fr",
+    "Hindi": "hi",
+    "Marathi": "mr",
+    "Gujarati": "gu",
+    "Tamil": "ta",
+    "Telugu": "te",
+    "Bengali": "bn",
+    "Chinese": "zh-CN",
+    "Arabic": "ar",
+    "Russian": "ru",
+    "Portuguese": "pt",
+    "Italian": "it",
+    "Korean": "ko",
+    "Malayalam": "ml",
+    "Punjabi": "pa",
+}
+
+# Create a list of display names
+language_display = [f"{name} ({code})" for name, code in languages.items()]
+
+# Show selectbox with language names
+selected_language_display = st.selectbox("Target Language", language_display, index=0)
+
+# Get the language code from the selected display string
+target_lang = languages[selected_language_display.split(" (")[0]]
+
+st.write(f"Selected Language Code: {target_lang}")
+
 
 if st.button("Process Video") and uploaded_file:
     # File paths
