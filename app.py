@@ -102,6 +102,7 @@ languages = {
     "Gujarati": "gu",
     "Tamil": "ta",
     "Telugu": "te",
+    "Bhojpuri": "bho",
     "Bengali": "bn",
     "Chinese": "zh-CN",
     "Arabic": "ar",
